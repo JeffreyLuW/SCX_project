@@ -10,11 +10,7 @@ function createIdlePanel(modelId: string): PanelState {
 }
 
 export default function Home() {
-  const [selectedIds, setSelectedIds] = useState<string[]>([
-    "MAGPiE",
-    "DeepSeek-V4-pro",
-    "MiniMax-M2.7",
-  ]);
+  const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [prompt, setPrompt] = useState("");
   const [panels, setPanels] = useState<PanelState[]>([]);
   const [running, setRunning] = useState(false);
