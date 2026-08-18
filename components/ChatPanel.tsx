@@ -62,11 +62,14 @@ export function ChatPanel({ state }: ChatPanelProps) {
           <span className="text-red-500">{state.error ?? "An error occurred."}</span>
         )}
         {state.thinkingContent && (
-          <details className="mb-3 text-xs text-gray-400">
-            <summary className="cursor-pointer select-none font-medium text-indigo-400 mb-1">
-              Thinking…
+          <details
+            open={state.status === "streaming"}
+            className="mb-3 text-xs"
+          >
+            <summary className="cursor-pointer select-none font-medium text-indigo-500 mb-1">
+              💭 Thinking
             </summary>
-            <div className="pl-2 border-l border-indigo-100 text-gray-400 whitespace-pre-wrap">
+            <div className="pl-3 border-l border-gray-200 italic text-gray-400 whitespace-pre-wrap">
               {state.thinkingContent}
             </div>
           </details>

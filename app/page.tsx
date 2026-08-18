@@ -1,8 +1,9 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { ModelSelector } from "@/components/ModelSelector";
 import { ChatPanel, PanelState } from "@/components/ChatPanel";
+import { getModelById } from "@/lib/models";
 
 function createIdlePanel(modelId: string): PanelState {
   return { modelId, status: "idle", content: "" };
@@ -17,6 +18,17 @@ export default function Home() {
   const [prompt, setPrompt] = useState("");
   const [panels, setPanels] = useState<PanelState[]>([]);
   const [running, setRunning] = useState(false);
+  const [image, setImage] = useState<{ dataUrl: string; fileName: string } | null>(null);
+
+  const visionSelected = selectedIds.some(
+    (id) => getModelById(id)?.capabilities.includes("vision") ?? false
+  );
+
+  useEffect(() => {
+    if (!visionSelected && image) {
+      setImage(null);
+    }
+  }, [visionSelected, image]);
 
   const updatePanel = useCallback(
     (modelId: string, patch: Partial<PanelState>) => {
@@ -27,7 +39,33 @@ export default function Home() {
     []
   );
 
-  async function streamModel(modelId: string, userPrompt: string) {
+  function handleImageUpload(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = () => {
+      setImage({ dataUrl: reader.result as string, fileName: file.name });
+    };
+    reader.readAsDataURL(file);
+    e.target.value = "";
+  }
+
+  async function streamModel(
+    modelId: string,
+    userPrompt: string,
+    imageDataUrl: string | null
+  ) {
+    const hasVision = getModelById(modelId)?.capabilities.includes("vision") ?? false;
+    const userMessage = imageDataUrl && hasVision
+      ? {
+          role: "user" as const,
+          content: [
+            { type: "text", text: userPrompt },
+            { type: "image_url", image_url: { url: imageDataUrl } },
+          ],
+        }
+      : { role: "user" as const, content: userPrompt };
+
     const startTime = Date.now();
     try {
       const res = await fetch("/api/chat", {
@@ -35,7 +73,7 @@ export default function Home() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           model: modelId,
-          messages: [{ role: "user", content: userPrompt }],
+          messages: [userMessage],
         }),
       });
 
@@ -110,7 +148,9 @@ export default function Home() {
     setRunning(true);
     setPanels(selectedIds.map(createIdlePanel));
 
-    await Promise.all(selectedIds.map((id) => streamModel(id, currentPrompt)));
+    await Promise.all(
+      selectedIds.map((id) => streamModel(id, currentPrompt, image?.dataUrl ?? null))
+    );
 
     setRunning(false);
   }
@@ -151,27 +191,84 @@ export default function Home() {
         </section>
 
         {/* Prompt input */}
-        <form onSubmit={handleSubmit} className="flex gap-3">
-          <input
-            type="text"
-            value={prompt}
-            onChange={(e) => setPrompt(e.target.value)}
-            placeholder="Ask something… e.g. Explain quantum entanglement simply"
-            disabled={running}
-            className="flex-1 rounded-xl border border-gray-300 px-4 py-3 text-sm shadow-sm
-              focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent
-              disabled:opacity-50 disabled:bg-gray-50"
-          />
-          <button
-            type="submit"
-            disabled={running || selectedIds.length === 0 || !prompt.trim()}
-            className="px-6 py-3 rounded-xl bg-indigo-600 text-white text-sm font-semibold
-              hover:bg-indigo-700 disabled:opacity-40 disabled:cursor-not-allowed
-              transition-colors shadow-sm"
-          >
-            {running ? "Running…" : "Compare →"}
-          </button>
-        </form>
+        <div className="space-y-3">
+          {image && (
+            <div className="flex items-center gap-3 bg-white rounded-xl border border-gray-200 p-2 shadow-sm">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={image.dataUrl}
+                alt={image.fileName}
+                className="w-12 h-12 object-cover rounded-lg"
+              />
+              <span className="text-xs text-gray-600 truncate flex-1">
+                {image.fileName}
+              </span>
+              <button
+                type="button"
+                onClick={() => setImage(null)}
+                className="text-gray-400 hover:text-red-500 text-lg leading-none px-1"
+                aria-label="Remove image"
+              >
+                ×
+              </button>
+            </div>
+          )}
+
+          <form onSubmit={handleSubmit} className="flex gap-3">
+            <input
+              type="text"
+              value={prompt}
+              onChange={(e) => setPrompt(e.target.value)}
+              placeholder="Ask something… e.g. Explain quantum entanglement simply"
+              disabled={running}
+              className="flex-1 rounded-xl border border-gray-300 px-4 py-3 text-sm shadow-sm
+                focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent
+                disabled:opacity-50 disabled:bg-gray-50"
+            />
+            <label
+              className={`flex items-center justify-center px-4 py-3 rounded-xl border text-sm font-medium transition-colors ${
+                visionSelected
+                  ? "border-gray-300 bg-white text-gray-700 hover:bg-gray-50 cursor-pointer"
+                  : "border-gray-200 bg-gray-50 text-gray-400 cursor-not-allowed"
+              }`}
+              title={
+                visionSelected
+                  ? "Attach image"
+                  : "Select a vision model to attach images"
+              }
+            >
+              <input
+                type="file"
+                accept="image/*"
+                className="hidden"
+                onChange={handleImageUpload}
+                disabled={!visionSelected}
+              />
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="20"
+                height="20"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <path d="m21.44 11.05-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48" />
+              </svg>
+            </label>
+            <button
+              type="submit"
+              disabled={running || selectedIds.length === 0 || !prompt.trim()}
+              className="px-6 py-3 rounded-xl bg-indigo-600 text-white text-sm font-semibold
+                hover:bg-indigo-700 disabled:opacity-40 disabled:cursor-not-allowed
+                transition-colors shadow-sm"
+            >
+              {running ? "Running…" : "Compare →"}
+            </button>
+          </form>
+        </div>
 
         {/* Response panels */}
         {panels.length > 0 && (

@@ -31,23 +31,32 @@ export function ModelSelector({
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
         {MODELS.map((model: ModelMeta) => {
           const selected = selectedIds.includes(model.id);
-          const disabled = !selected && selectedIds.length >= maxSelections;
+          const atMax = !selected && selectedIds.length >= maxSelections;
+          const unavailable = !model.available;
+          const disabled = atMax || unavailable;
           return (
             <button
               key={model.id}
               onClick={() => toggle(model.id)}
               disabled={disabled}
               className={`
-                text-left px-4 py-3 rounded-xl border-2 transition-all
+                text-left px-4 py-3 rounded-xl border-2 transition-all relative
                 ${
-                  selected
+                  unavailable
+                    ? "border-gray-200 bg-gray-50 opacity-50 cursor-not-allowed"
+                    : selected
                     ? "border-indigo-500 bg-indigo-50 shadow-sm"
-                    : disabled
+                    : atMax
                     ? "border-gray-200 bg-gray-50 opacity-40 cursor-not-allowed"
                     : "border-gray-200 bg-white hover:border-indigo-300 hover:bg-indigo-50/40"
                 }
               `}
             >
+              {unavailable && (
+                <span className="absolute top-2 right-2 text-[10px] font-medium px-2 py-0.5 rounded-full bg-red-100 text-red-700 border border-red-200">
+                  Not on your tier
+                </span>
+              )}
               <div className="font-semibold text-gray-800 text-sm">
                 {model.name}
               </div>

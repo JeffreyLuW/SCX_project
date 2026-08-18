@@ -7,6 +7,7 @@ export interface ModelMeta {
   contextWindow: number; // in tokens
   capabilities: ModelCapability[];
   description: string;
+  available: boolean;
 }
 
 export const MODELS: ModelMeta[] = [
@@ -17,6 +18,7 @@ export const MODELS: ModelMeta[] = [
     contextWindow: 131000,
     capabilities: ["reasoning", "tools"],
     description: "SCX flagship model, 117B MoE architecture",
+    available: false,
   },
   {
     id: "coder",
@@ -25,6 +27,7 @@ export const MODELS: ModelMeta[] = [
     contextWindow: 197000,
     capabilities: ["reasoning", "tools", "coding"],
     description: "Optimized for coding tasks",
+    available: false,
   },
   {
     id: "MiniMax-M2.7",
@@ -33,6 +36,7 @@ export const MODELS: ModelMeta[] = [
     contextWindow: 192000,
     capabilities: ["reasoning", "tools"],
     description: "Fast and agentic",
+    available: true,
   },
   {
     id: "MiniMax-M2.5",
@@ -41,6 +45,7 @@ export const MODELS: ModelMeta[] = [
     contextWindow: 197000,
     capabilities: ["reasoning", "tools", "coding"],
     description: "SOTA coding — SWE-Bench 80.2%",
+    available: false,
   },
   {
     id: "DeepSeek-V4-pro",
@@ -49,6 +54,7 @@ export const MODELS: ModelMeta[] = [
     contextWindow: 1000000,
     capabilities: ["reasoning", "tools"],
     description: "Most powerful DeepSeek model, 1.6T MoE",
+    available: false,
   },
   {
     id: "DeepSeek-V4-flash",
@@ -57,6 +63,7 @@ export const MODELS: ModelMeta[] = [
     contextWindow: 1000000,
     capabilities: ["reasoning", "tools"],
     description: "Fast tier DeepSeek model",
+    available: false,
   },
   {
     id: "DeepSeek-V3.1",
@@ -65,6 +72,7 @@ export const MODELS: ModelMeta[] = [
     contextWindow: 131000,
     capabilities: ["reasoning", "tools"],
     description: "671B MoE model",
+    available: false,
   },
   {
     id: "Qwen3-32B",
@@ -73,6 +81,7 @@ export const MODELS: ModelMeta[] = [
     contextWindow: 33000,
     capabilities: ["reasoning", "tools"],
     description: "Lightweight Qwen model",
+    available: true,
   },
   {
     id: "Qwen3.8-Max",
@@ -81,6 +90,7 @@ export const MODELS: ModelMeta[] = [
     contextWindow: 1000000,
     capabilities: ["reasoning", "tools", "vision"],
     description: "Alibaba flagship, supports vision",
+    available: true,
   },
   {
     id: "GLM-5.2",
@@ -89,6 +99,7 @@ export const MODELS: ModelMeta[] = [
     contextWindow: 1000000,
     capabilities: ["reasoning", "tools", "coding"],
     description: "Long-horizon agentic coding",
+    available: true,
   },
   {
     id: "GLM-5.2-Fast",
@@ -97,6 +108,7 @@ export const MODELS: ModelMeta[] = [
     contextWindow: 1000000,
     capabilities: ["reasoning", "tools", "coding"],
     description: "Fast version of GLM-5.2",
+    available: false,
   },
   {
     id: "gpt-oss-120b",
@@ -105,6 +117,7 @@ export const MODELS: ModelMeta[] = [
     contextWindow: 131000,
     capabilities: ["reasoning", "tools"],
     description: "Open-weight, near o4-mini reasoning",
+    available: true,
   },
   {
     id: "gemma-4-31B-it",
@@ -113,6 +126,8 @@ export const MODELS: ModelMeta[] = [
     contextWindow: 131000,
     capabilities: ["reasoning", "tools", "vision"],
     description: "Multimodal, supports vision",
+    // No response within 30s during streaming test — possibly slow cold-start or another tier issue.
+    available: false,
   },
   {
     id: "Llama-4-Maverick-17B-128E-Instruct",
@@ -121,6 +136,7 @@ export const MODELS: ModelMeta[] = [
     contextWindow: 131000,
     capabilities: ["tools", "vision"],
     description: "Multimodal, supports vision",
+    available: true,
   },
   {
     id: "Meta-Llama-3.3-70B-Instruct",
@@ -129,6 +145,7 @@ export const MODELS: ModelMeta[] = [
     contextWindow: 131000,
     capabilities: ["tools"],
     description: "70B instruction-tuned model",
+    available: false,
   },
 ];
 
