@@ -77,7 +77,11 @@ export default function Home() {
 
       if (!res.ok) {
         const err = await res.json();
-        updatePanel(modelId, { status: "error", error: err.error });
+        updatePanel(modelId, {
+          status: "error",
+          error: err.error,
+          statusCode: res.status,
+        });
         return;
       }
 
@@ -301,9 +305,18 @@ export default function Home() {
 
         {/* Response panels */}
         {panels.length > 0 && (
-          <div className={`grid ${gridCols} gap-4`}>
+          <div
+            className={`flex md:grid snap-x snap-mandatory overflow-x-auto md:overflow-visible md:snap-none gap-4 ${gridCols}`}
+          >
             {panels.map((panel) => (
-              <ChatPanel key={panel.modelId} state={panel} />
+              <div
+                key={panel.modelId}
+                className={`snap-start shrink-0 ${
+                  panels.length === 1 ? "w-full" : "w-[85%]"
+                } md:w-auto`}
+              >
+                <ChatPanel state={panel} />
+              </div>
             ))}
           </div>
         )}

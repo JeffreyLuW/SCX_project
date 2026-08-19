@@ -12,6 +12,7 @@ export interface PanelState {
   responseTimeMs?: number;
   tokenUsage?: { prompt_tokens: number; completion_tokens: number; total_tokens: number };
   error?: string;
+  statusCode?: number;
 }
 
 interface ChatPanelProps {
@@ -59,8 +60,26 @@ export function ChatPanel({ state }: ChatPanelProps) {
           </span>
         )}
         {state.status === "error" && (
-          <span className="text-red-500">{state.error ?? "An error occurred."}</span>
+          <div className="space-y-2">
+            {state.statusCode !== undefined && (
+              <span className="inline-block px-2 py-0.5 rounded-full text-xs font-semibold bg-red-100 text-red-700 border border-red-200">
+                HTTP {state.statusCode}
+              </span>
+            )}
+            <div className="text-red-500 text-sm break-words">
+              {state.error ?? "An error occurred."}
+            </div>
+          </div>
         )}
+        {state.status === "streaming" &&
+          !state.content &&
+          !state.thinkingContent && (
+            <div className="space-y-2">
+              <div className="h-3 bg-gray-200 rounded animate-pulse w-3/4" />
+              <div className="h-3 bg-gray-200 rounded animate-pulse w-1/2" />
+              <div className="h-3 bg-gray-200 rounded animate-pulse w-2/3" />
+            </div>
+          )}
         {state.thinkingContent && (
           <details
             open={state.status === "streaming"}
@@ -75,7 +94,7 @@ export function ChatPanel({ state }: ChatPanelProps) {
           </details>
         )}
         {state.content}
-        {state.status === "streaming" && (
+        {state.status === "streaming" && state.content && (
           <span className="inline-block w-1 h-4 ml-0.5 bg-indigo-400 animate-pulse align-middle" />
         )}
       </div>
