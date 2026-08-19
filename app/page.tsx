@@ -38,10 +38,8 @@ export default async function LandingPage() {
       </div>
       {/* ── Nav ── */}
       <nav className="px-6 py-4 flex items-center gap-3 bg-[rgba(255,255,255,0.7)] backdrop-blur-md sticky top-0 z-10 border-b border-[#EAE6DE]">
-        <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-amber-500 to-amber-600 flex items-center justify-center text-white font-bold text-sm shadow-[0_4px_12px_rgba(217,119,6,0.2)]">
-          S
-        </div>
-        <span className="font-display font-bold text-stone-900">SCX</span>
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src="/logo.png" alt="SCX" className="h-8 w-auto" />
         <div className="flex-1" />
         <SignInButton mode="redirect" fallbackRedirectUrl="/compare">
           <button className="px-4 py-2 rounded-xl text-sm font-medium text-stone-700 hover:bg-amber-50 hover:text-amber-700 border border-[#E0D9CE] hover:border-amber-300 transition-all duration-150">
@@ -98,45 +96,19 @@ export default async function LandingPage() {
           </a>
         </div>
 
-        {/* Mock UI preview */}
-        <div className="mt-16 w-full max-w-4xl mx-auto rounded-2xl border border-[#E8E4DC] bg-white shadow-[0_24px_80px_rgba(0,0,0,0.08)] overflow-hidden">
-          {/* Fake browser chrome */}
+        {/* App screenshot preview */}
+        <div className="mt-16 w-full max-w-5xl mx-auto rounded-2xl border border-[#E8E4DC] bg-white shadow-[0_24px_80px_rgba(0,0,0,0.10)] overflow-hidden">
+          {/* Browser chrome */}
           <div className="flex items-center gap-2 px-4 py-3 border-b border-[#EAE6DE] bg-stone-50">
             <div className="w-3 h-3 rounded-full bg-rose-400/70" />
             <div className="w-3 h-3 rounded-full bg-amber-400/70" />
             <div className="w-3 h-3 rounded-full bg-emerald-400/70" />
             <div className="flex-1 mx-4 h-6 rounded-lg bg-stone-200/70 text-xs text-stone-400 flex items-center px-3">
-              localhost:3000/compare
+              scx-project.vercel.app/compare
             </div>
           </div>
-          {/* Fake panels */}
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 p-5">
-            {[
-              { name: "GPT-OSS 120B", color: "text-emerald-700 bg-emerald-50 border-emerald-200", lines: [3, 4, 3, 2] },
-              { name: "Llama 4 Maverick", color: "text-amber-700 bg-amber-50 border-amber-200", lines: [4, 3, 4, 1] },
-              { name: "Qwen3-32B", color: "text-violet-700 bg-violet-50 border-violet-200", lines: [2, 4, 3, 3] },
-            ].map((model) => (
-              <div key={model.name} className="rounded-xl border border-[#EAE6DE] p-4 space-y-3">
-                <div className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg border text-xs font-semibold ${model.color}`}>
-                  <span className="w-1.5 h-1.5 rounded-full bg-current opacity-70" />
-                  {model.name}
-                </div>
-                <div className="space-y-1.5">
-                  {model.lines.map((w, i) => (
-                    <div
-                      key={i}
-                      className="h-2 rounded-full bg-stone-200"
-                      style={{ width: `${w * 20 + 20}%`, opacity: 0.6 + i * 0.1 }}
-                    />
-                  ))}
-                </div>
-                <div className="text-[10px] text-stone-400 flex gap-2 pt-1">
-                  <span className="bg-stone-100 rounded px-1.5 py-0.5">312 ms</span>
-                  <span className="bg-stone-100 rounded px-1.5 py-0.5">142 tok</span>
-                </div>
-              </div>
-            ))}
-          </div>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src="/landing.png" alt="SCX Model Comparison app" className="w-full block" />
         </div>
       </section>
 

@@ -162,9 +162,8 @@ export default function ComparePage() {
       <header className="bg-[rgba(255,255,255,0.85)] backdrop-blur-md sticky top-0 z-10">
         <div className="px-6 py-4 flex items-center gap-3">
           <a href="/" className="flex items-center gap-3 group">
-            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-amber-500 to-amber-600 flex items-center justify-center text-white font-bold text-sm shadow-[0_4px_12px_rgba(217,119,6,0.2)] group-hover:shadow-[0_4px_16px_rgba(217,119,6,0.35)] transition-shadow duration-150">
-              S
-            </div>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src="/logo.png" alt="SCX" className="h-8 w-auto" />
             <div>
               <h1 className="font-title font-semibold text-stone-900 leading-tight">
                 SCX Model Comparison
