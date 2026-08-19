@@ -7,7 +7,7 @@ import { ChatPanel, PanelState } from "@/components/ChatPanel";
 import { getModelById } from "@/lib/models";
 
 function createIdlePanel(modelId: string): PanelState {
-  return { modelId, status: "idle", content: "" };
+  return { modelId, status: "idle", content: "", chunks: [] };
 }
 
 export default function Home() {
@@ -92,6 +92,8 @@ export default function Home() {
       const decoder = new TextDecoder();
       let buffer = "";
       let content = "";
+      let chunks: Array<{ text: string; id: number }> = [];
+      let chunkId = 0;
       let thinkingContent = "";
 
       while (true) {
@@ -124,7 +126,8 @@ export default function Home() {
 
             if (delta.content) {
               content += delta.content;
-              updatePanel(modelId, { content });
+              chunks = [...chunks, { text: delta.content, id: chunkId++ }];
+              updatePanel(modelId, { content, chunks });
             }
           } catch {
             // Non-JSON lines — skip
@@ -167,8 +170,8 @@ export default function Home() {
   // Show nothing while Clerk is loading
   if (!isLoaded) {
     return (
-      <main className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-gray-400 text-sm">Loading…</div>
+      <main className="min-h-screen flex items-center justify-center">
+        <div className="text-stone-400 text-sm">Loading…</div>
       </main>
     );
   }
@@ -176,16 +179,16 @@ export default function Home() {
   // Not signed in — show a gate
   if (!isSignedIn) {
     return (
-      <main className="min-h-screen bg-gray-50 flex flex-col items-center justify-center gap-6">
-        <div className="w-12 h-12 rounded-2xl bg-indigo-600 flex items-center justify-center text-white font-bold text-xl">
+      <main className="min-h-screen flex flex-col items-center justify-center gap-6">
+        <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-amber-500 to-amber-600 flex items-center justify-center text-white font-bold text-xl shadow-[0_8px_24px_rgba(217,119,6,0.25)]">
           S
         </div>
         <div className="text-center">
-          <h1 className="text-xl font-semibold text-gray-900">SCX Model Comparison</h1>
-          <p className="text-sm text-gray-500 mt-1">Sign in to start comparing AI models</p>
+          <h1 className="font-title text-xl font-semibold text-stone-900">SCX Model Comparison</h1>
+          <p className="text-sm text-stone-500 mt-1">Sign in to start comparing AI models</p>
         </div>
         <SignInButton mode="modal">
-          <button className="px-6 py-3 rounded-xl bg-indigo-600 text-white text-sm font-semibold hover:bg-indigo-700 transition-colors shadow-sm">
+          <button className="px-6 py-3 rounded-xl bg-amber-600 text-white text-sm font-semibold hover:bg-amber-700 hover:shadow-[0_0_24px_rgba(217,119,6,0.35)] transition-all duration-150 shadow-sm">
             Sign in
           </button>
         </SignInButton>
@@ -194,26 +197,29 @@ export default function Home() {
   }
 
   return (
-    <main className="min-h-screen bg-gray-50 text-gray-900">
+    <main className="min-h-screen text-stone-900">
       {/* Header */}
-      <header className="border-b border-gray-200 bg-white px-6 py-4 flex items-center gap-3">
-        <div className="w-8 h-8 rounded-lg bg-indigo-600 flex items-center justify-center text-white font-bold text-sm">
-          S
+      <header className="bg-[rgba(255,255,255,0.85)] backdrop-blur-md sticky top-0 z-10">
+        <div className="px-6 py-4 flex items-center gap-3">
+          <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-amber-500 to-amber-600 flex items-center justify-center text-white font-bold text-sm shadow-[0_4px_12px_rgba(217,119,6,0.2)]">
+            S
+          </div>
+          <div className="flex-1">
+            <h1 className="font-title font-semibold text-stone-900 leading-tight">
+              SCX Model Comparison
+            </h1>
+            <p className="text-xs text-stone-500">Compare AI models side by side</p>
+          </div>
+          {/* User avatar + sign-out */}
+          <UserButton afterSignOutUrl="/" />
         </div>
-        <div className="flex-1">
-          <h1 className="font-semibold text-gray-900 leading-tight">
-            SCX Model Comparison
-          </h1>
-          <p className="text-xs text-gray-400">Compare AI models side by side</p>
-        </div>
-        {/* User avatar + sign-out */}
-        <UserButton afterSignOutUrl="/" />
+        <div className="h-px bg-gradient-to-r from-transparent via-amber-500 to-transparent" />
       </header>
 
       <div className="max-w-screen-2xl mx-auto px-4 py-6 space-y-6">
         {/* Model selector */}
-        <section className="bg-white rounded-2xl border border-gray-200 p-5 shadow-sm">
-          <h2 className="text-sm font-semibold text-gray-700 mb-3">
+        <section className="bg-white rounded-2xl border border-[#E8E4DC] p-5 shadow-sm">
+          <h2 className="text-sm font-semibold text-stone-700 mb-3">
             Choose models to compare
           </h2>
           <ModelSelector
@@ -226,20 +232,20 @@ export default function Home() {
         {/* Prompt input */}
         <div className="space-y-3">
           {image && (
-            <div className="flex items-center gap-3 bg-white rounded-xl border border-gray-200 p-2 shadow-sm">
+            <div className="flex items-center gap-3 bg-white rounded-xl border border-[#E8E4DC] p-2 shadow-sm">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src={image.dataUrl}
                 alt={image.fileName}
                 className="w-12 h-12 object-cover rounded-lg"
               />
-              <span className="text-xs text-gray-600 truncate flex-1">
+              <span className="text-xs text-stone-600 truncate flex-1">
                 {image.fileName}
               </span>
               <button
                 type="button"
                 onClick={() => setImage(null)}
-                className="text-gray-400 hover:text-red-500 text-lg leading-none px-1"
+                className="text-stone-400 hover:text-rose-500 text-lg leading-none px-1 transition-colors"
                 aria-label="Remove image"
               >
                 ×
@@ -254,15 +260,15 @@ export default function Home() {
               onChange={(e) => setPrompt(e.target.value)}
               placeholder="Ask something… e.g. Explain quantum entanglement simply"
               disabled={running}
-              className="flex-1 rounded-xl border border-gray-300 px-4 py-3 text-sm shadow-sm
-                focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent
-                disabled:opacity-50 disabled:bg-gray-50"
+              className="flex-1 rounded-xl border border-[#D1C9BC] bg-white px-4 py-3 text-sm shadow-sm
+                focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent focus:bg-amber-50/30
+                disabled:opacity-50 disabled:bg-stone-50 transition-all"
             />
             <label
-              className={`flex items-center justify-center px-4 py-3 rounded-xl border text-sm font-medium transition-colors ${
+              className={`flex items-center justify-center px-4 py-3 rounded-xl border text-sm font-medium transition-all duration-150 ${
                 visionSelected
-                  ? "border-gray-300 bg-white text-gray-700 hover:bg-gray-50 cursor-pointer"
-                  : "border-gray-200 bg-gray-50 text-gray-400 cursor-not-allowed"
+                  ? "border-[#D1C9BC] bg-white text-stone-700 hover:bg-amber-50 hover:border-amber-400 cursor-pointer"
+                  : "border-[#E8E4DC] bg-stone-50 text-stone-400 cursor-not-allowed"
               }`}
               title={
                 visionSelected
@@ -294,9 +300,9 @@ export default function Home() {
             <button
               type="submit"
               disabled={running || selectedIds.length === 0 || !prompt.trim()}
-              className="px-6 py-3 rounded-xl bg-indigo-600 text-white text-sm font-semibold
-                hover:bg-indigo-700 disabled:opacity-40 disabled:cursor-not-allowed
-                transition-colors shadow-sm"
+              className="px-6 py-3 rounded-xl border-2 border-transparent bg-amber-600 text-white text-sm font-semibold
+                hover:bg-amber-700 hover:shadow-[0_0_24px_rgba(217,119,6,0.35)] transition-all duration-150 shadow-sm
+                disabled:bg-transparent disabled:border-amber-200 disabled:border-dashed disabled:text-amber-300 disabled:shadow-none disabled:cursor-not-allowed"
             >
               {running ? "Running…" : "Compare →"}
             </button>
@@ -322,7 +328,7 @@ export default function Home() {
         )}
 
         {panels.length === 0 && (
-          <div className="text-center py-20 text-gray-400 text-sm">
+          <div className="text-center py-20 text-stone-400 text-sm">
             Select models above and ask a question to start comparing.
           </div>
         )}
