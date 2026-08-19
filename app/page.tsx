@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useCallback, useEffect } from "react";
+import { useUser, UserButton, SignInButton } from "@clerk/nextjs";
 import { ModelSelector } from "@/components/ModelSelector";
 import { ChatPanel, PanelState } from "@/components/ChatPanel";
 import { getModelById } from "@/lib/models";
@@ -10,6 +11,7 @@ function createIdlePanel(modelId: string): PanelState {
 }
 
 export default function Home() {
+  const { isLoaded, isSignedIn } = useUser();
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [prompt, setPrompt] = useState("");
   const [panels, setPanels] = useState<PanelState[]>([]);
@@ -158,6 +160,35 @@ export default function Home() {
       ? "grid-cols-1 md:grid-cols-2"
       : "grid-cols-1 md:grid-cols-2 xl:grid-cols-3";
 
+  // Show nothing while Clerk is loading
+  if (!isLoaded) {
+    return (
+      <main className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-gray-400 text-sm">Loading…</div>
+      </main>
+    );
+  }
+
+  // Not signed in — show a gate
+  if (!isSignedIn) {
+    return (
+      <main className="min-h-screen bg-gray-50 flex flex-col items-center justify-center gap-6">
+        <div className="w-12 h-12 rounded-2xl bg-indigo-600 flex items-center justify-center text-white font-bold text-xl">
+          S
+        </div>
+        <div className="text-center">
+          <h1 className="text-xl font-semibold text-gray-900">SCX Model Comparison</h1>
+          <p className="text-sm text-gray-500 mt-1">Sign in to start comparing AI models</p>
+        </div>
+        <SignInButton mode="modal">
+          <button className="px-6 py-3 rounded-xl bg-indigo-600 text-white text-sm font-semibold hover:bg-indigo-700 transition-colors shadow-sm">
+            Sign in
+          </button>
+        </SignInButton>
+      </main>
+    );
+  }
+
   return (
     <main className="min-h-screen bg-gray-50 text-gray-900">
       {/* Header */}
@@ -165,12 +196,14 @@ export default function Home() {
         <div className="w-8 h-8 rounded-lg bg-indigo-600 flex items-center justify-center text-white font-bold text-sm">
           S
         </div>
-        <div>
+        <div className="flex-1">
           <h1 className="font-semibold text-gray-900 leading-tight">
             SCX Model Comparison
           </h1>
           <p className="text-xs text-gray-400">Compare AI models side by side</p>
         </div>
+        {/* User avatar + sign-out */}
+        <UserButton afterSignOutUrl="/" />
       </header>
 
       <div className="max-w-screen-2xl mx-auto px-4 py-6 space-y-6">
