@@ -50,6 +50,32 @@ export function ChatPanel({ state }: ChatPanelProps) {
         )}
       </div>
 
+      {(state.status === "done" || state.status === "streaming") &&
+        (state.responseTimeMs !== undefined || state.tokenUsage) && (
+          <div className="px-4 py-2 border-b border-[#E8E4DC] bg-amber-50/40 flex items-center gap-3 text-xs">
+            {state.responseTimeMs !== undefined && (
+              <span className="inline-flex items-center gap-1.5">
+                <span className="w-1.5 h-1.5 rounded-full bg-amber-500" />
+                <span className="font-medium text-amber-700">
+                  {state.responseTimeMs} ms
+                </span>
+              </span>
+            )}
+            {state.tokenUsage && (
+              <span className="inline-flex items-center gap-1.5">
+                <span className="w-1.5 h-1.5 rounded-full bg-stone-400" />
+                <span className="text-stone-600">
+                  {state.tokenUsage.completion_tokens} out
+                  <span className="text-stone-400">
+                    {" / "}
+                    {state.tokenUsage.total_tokens} total
+                  </span>
+                </span>
+              </span>
+            )}
+          </div>
+        )}
+
       {/* Content area */}
       <div
         ref={contentRef}
@@ -109,21 +135,6 @@ export function ChatPanel({ state }: ChatPanelProps) {
         )}
       </div>
 
-      {/* Footer: metadata */}
-      {(state.status === "done" || state.status === "streaming") &&
-        (state.responseTimeMs !== undefined || state.tokenUsage) && (
-          <div className="px-4 py-2 border-t border-[#E8E4DC] bg-[#F5F3F0]/85 backdrop-blur-sm flex gap-4 text-xs text-stone-400">
-            {state.responseTimeMs !== undefined && (
-              <span>⏱ {state.responseTimeMs} ms</span>
-            )}
-            {state.tokenUsage && (
-              <span>
-                🔢 {state.tokenUsage.completion_tokens} tokens out /{" "}
-                {state.tokenUsage.total_tokens} total
-              </span>
-            )}
-          </div>
-        )}
     </div>
   );
 }
